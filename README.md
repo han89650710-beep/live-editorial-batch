@@ -49,6 +49,9 @@ python scripts/update.py --check    # 比对本地与仓库版本
 python scripts/update.py            # 有新版就更新（加 --deps 重装依赖）
 ```
 
+技能里的 AI 会在每次开工前跑一次检查，**发现新版只用一句话告诉你，你同意才更新**；
+不会在你剪到一半的时候动代码，也不会未经确认就更新。
+
 更新只替换代码文件，`config.json`、`stories/`、`work/`、`output/`、`node_modules/` 一律不动，
 所以不会冲掉你已经剪好的片子。装的是 git clone 时走 `git pull --ff-only`，装的是 zip 时自动下载新版覆盖代码；
 本地断网只会提示检查失败，不影响继续出片。

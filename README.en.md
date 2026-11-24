@@ -57,7 +57,9 @@ python scripts/update.py            # apply a newer release (--deps reinstalls p
 ```
 
 The updater replaces code files only: `config.json`, `stories/`, `work/`, `output/` and
-`node_modules/` are never touched, so a finished cut survives the update. A git clone is
+`node_modules/` are never touched, so a finished cut survives the update. The agent checks
+before a new video, reports a newer release in one sentence, and updates **only after you
+agree** — never silently, never mid-cut. A git clone is
 fast-forwarded with `git pull --ff-only`; a zip install downloads the latest archive and
 refreshes code. Offline simply reports that the check failed — rendering still works.
 

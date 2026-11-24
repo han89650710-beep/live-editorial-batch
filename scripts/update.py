@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -45,7 +46,10 @@ def local_version() -> str:
 
 
 def remote_version() -> str | None:
-    request = urllib.request.Request(RAW_PACKAGE, headers={"User-Agent": "live-editorial-batch"})
+    # The timestamp busts the CDN cache so a fresh release is visible at once.
+    url = f"{RAW_PACKAGE}?t={int(time.time())}"
+    request = urllib.request.Request(url, headers={"User-Agent": "live-editorial-batch",
+                                                  "Cache-Control": "no-cache"})
     try:
         with urllib.request.urlopen(request, timeout=8) as response:
             data = json.loads(response.read().decode("utf-8"))
