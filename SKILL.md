@@ -78,9 +78,10 @@ Stages are dependent and must run in this order. `render` also runs QA and fails
 5. **Deterministic render** — `renderAt(t)` must not use `Date`, `Math.random`, or
    time-based animation libraries.
 
-Details and field-by-field documentation: `references/story-schema.md`.
-Style presets and rotation rules: `references/style-library.md`.
-Manual acceptance list: `references/qa-checklist.md`.
+Details and field-by-field documentation: `references/story-schema.md`
+(Chinese original; English mirror at `references/story-schema.en.md`).
+Style presets and rotation rules: `references/style-library.md` (`style-library.en.md`).
+Manual acceptance list: `references/qa-checklist.md` (`qa-checklist.en.md`).
 
 ## Scene types
 

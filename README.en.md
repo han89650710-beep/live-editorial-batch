@@ -93,9 +93,9 @@ extra colour keys documented in `SKILL.md`, otherwise text renders white on whit
 ## Documentation
 
 - `SKILL.md` — agent-facing workflow and constraints
-- `references/story-schema.md` — every field, in Chinese
-- `references/style-library.md` — seven style recipes and rotation rules
-- `references/qa-checklist.md` — manual acceptance list
+- `references/story-schema.en.md` — every field (`story-schema.md` is the Chinese original)
+- `references/style-library.en.md` — seven style recipes and rotation rules
+- `references/qa-checklist.en.md` — manual acceptance list and rhythm measurement
 
 ## License
 
