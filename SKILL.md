@@ -35,6 +35,16 @@ pip install -r requirements.txt   # Pillow
 Required: Python 3.9+, ffmpeg/ffprobe, Node.js, Google Chrome (or set `CHROME_PATH`).
 Optional: `faster-whisper` for local transcription; otherwise import an SRT.
 
+## Updating
+
+This folder is a copy of `https://github.com/han89650710-beep/live-editorial-batch`.
+Before starting a new video, run `python scripts/update.py --check`. If it reports a
+newer release, tell the user in one sentence and run `python scripts/update.py`
+(add `--deps` when `doctor.py` reports missing packages). The updater refreshes code
+only and leaves `config.json`, `stories/`, `work/`, `output/` and `node_modules/`
+untouched, so an update never destroys a finished cut. Never hand-edit files inside the
+skill folder — client changes belong in `config.json` and `stories/`.
+
 ## Quickstart
 
 ```bash

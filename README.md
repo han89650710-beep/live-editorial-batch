@@ -40,6 +40,19 @@ cp config.example.json config.json # 然后改 source 路径
 
 系统依赖：ffmpeg / ffprobe、Node.js 18+、Google Chrome（或设置环境变量 `CHROME_PATH`）。
 
+## 更新
+
+这个目录是 GitHub 仓库的一份副本。开工前跑一次检查：
+
+```bash
+python scripts/update.py --check    # 比对本地与仓库版本
+python scripts/update.py            # 有新版就更新（加 --deps 重装依赖）
+```
+
+更新只替换代码文件，`config.json`、`stories/`、`work/`、`output/`、`node_modules/` 一律不动，
+所以不会冲掉你已经剪好的片子。装的是 git clone 时走 `git pull --ff-only`，装的是 zip 时自动下载新版覆盖代码；
+本地断网只会提示检查失败，不影响继续出片。
+
 ## 三步跑通
 
 ```bash
@@ -86,6 +99,7 @@ live-editorial-batch/
 │   ├── transcribe.py         # Whisper 或 SRT → 词级时间戳
 │   ├── plan_from_transcript.py # 拆句、按主题挑句、重排出 story 草稿
 │   ├── auto_pip.py           # 人脸检测 → 居中的 PIP 裁切框
+│   ├── update.py             # 检查并更新到仓库最新版（保留你的配置与成片）
 │   ├── doctor.py             # 环境自检
 │   └── make_demo_clip.py     # 生成示例素材
 ├── assets/

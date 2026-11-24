@@ -47,6 +47,11 @@ def resolve_tool(config: dict, key: str) -> str | None:
 def main() -> None:
     ok = True
     print(f"package root: {ROOT}")
+    try:
+        version = json.loads((ROOT / "package.json").read_text(encoding="utf-8-sig")).get("version", "?")
+    except (OSError, json.JSONDecodeError):
+        version = "?"
+    print(f"      version: {version}   (update: python scripts/update.py)")
     ok &= check("python >= 3.9", sys.version_info >= (3, 9), f"current: {sys.version.split()[0]}")
 
     config_path = ROOT / "config.json"

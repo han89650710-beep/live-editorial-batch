@@ -47,6 +47,21 @@ cp config.example.json config.json  # then edit `source`
 System requirements: Python 3.9+, ffmpeg/ffprobe, Node.js 18+, Google Chrome
 (or set `CHROME_PATH`).
 
+## Updating
+
+This folder is a copy of the GitHub repository. Check before starting a new video:
+
+```bash
+python scripts/update.py --check    # compare local and remote versions
+python scripts/update.py            # apply a newer release (--deps reinstalls packages)
+```
+
+The updater replaces code files only: `config.json`, `stories/`, `work/`, `output/` and
+`node_modules/` are never touched, so a finished cut survives the update. A git clone is
+fast-forwarded with `git pull --ff-only`; a zip install downloads the latest archive and
+refreshes code. Offline simply reports that the check failed — rendering still works.
+
+
 ## Run the demo
 
 ```bash
