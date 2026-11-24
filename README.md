@@ -1,5 +1,9 @@
 # 直播切片 AI 剪辑流水线（live-editorial-batch）
 
+[English](README.en.md) ｜ 中文
+
+![demo](docs/demo.gif)
+
 把一场长口播（直播回放、访谈、课程）做成可直接发布的竖屏短视频：
 封面入片头、花字跟读、1.5 秒视觉节拍、真人/页面交替，全部由一份 JSON 配置驱动，本地离线跑。
 

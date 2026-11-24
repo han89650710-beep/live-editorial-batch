@@ -22,6 +22,9 @@ jobs:
       - name: Python syntax
         run: python -m compileall -q scripts
 
+      - name: Python deps
+        run: pip install -r requirements.txt
+
       - name: JSON valid
         run: |
           python - <<'PY'
