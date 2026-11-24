@@ -1,0 +1,105 @@
+{
+  "id": "demo01",
+  "name": "demo01_run_the_pipeline",
+  "chapter_footer": "DEMO / PIPELINE",
+  "version": "2.0",
+  "rhythm": {"beat": 1.5},
+  "embed_cover": true,
+  "style": "dark-magazine",
+  "theme": {
+    "bg": "#0B1518", "panel": "#122225", "text": "#EDF6F3", "muted": "#8FAEAA",
+    "accent": "#FF5C8A", "head": "Microsoft YaHei", "body": "Microsoft YaHei",
+    "panelSolid": "rgba(11,21,24,.94)", "accentInk": "#3B0A1B"
+  },
+  "segments": [[0, 36]],
+  "captions": [
+    {"seg": 0, "s": 0.0, "e": 3.0, "text": "这是一条示例素材"},
+    {"seg": 0, "s": 3.0, "e": 6.0, "text": "用来跑通整条流水线"},
+    {"seg": 0, "s": 6.0, "e": 8.0, "text": "全屏真人段"},
+    {"seg": 0, "s": 8.0, "e": 11.0, "text": "页面：三条卖点逐条出现"},
+    {"seg": 0, "s": 11.0, "e": 14.0, "text": "所有时间都写在 story.json 里"},
+    {"seg": 0, "s": 14.0, "e": 16.0, "text": "真人插入"},
+    {"seg": 0, "s": 16.0, "e": 19.0, "text": "1.5 秒视觉节拍"},
+    {"seg": 0, "s": 19.0, "e": 22.0, "text": "每 1.5 秒必须变一次"},
+    {"seg": 0, "s": 22.0, "e": 24.0, "text": "再次切回真人"},
+    {"seg": 0, "s": 24.0, "e": 27.0, "text": "真人与页面交替"},
+    {"seg": 0, "s": 27.0, "e": 30.0, "text": "每 6 到 12 秒换一次形态"},
+    {"seg": 0, "s": 30.0, "e": 32.0, "text": "最后一段真人"},
+    {"seg": 0, "s": 32.0, "e": 36.0, "text": "改配置就能换成你的视频"}
+  ],
+  "scenes": [
+    {
+      "key": "hook", "type": "hook", "bg": "dark", "start": 0.0, "end": 6.0,
+      "kicker": "示例 / DEMO", "chapter": "01 / 05", "ghost": "01",
+      "headline": ["跑通一次", "就懂了"],
+      "sub": "这是一条可复现的示例",
+      "kickerAt": 0.06, "headAt": 0.15, "subAt": 2.6, "ruleAt": 5.2
+    },
+    {
+      "key": "l1", "type": "live", "bg": "live", "start": 6.0, "end": 8.0
+    },
+    {
+      "key": "points", "type": "list", "bg": "dark", "start": 8.0, "end": 14.0,
+      "kicker": "示例页 / LAYOUT", "chapter": "02 / 05", "ghost": "02",
+      "english": "THREE POINTS",
+      "headline": ["三个卖点", "逐条出现"],
+      "items": [
+        {"label": "结构由配置决定", "en": "CONFIG DRIVEN"},
+        {"label": "花字跟着口播", "en": "SYNCED CAPTIONS"},
+        {"label": "每 1.5 秒有变化", "en": "VISUAL RHYTHM"}
+      ],
+      "beats": [1.2, 2.4, 3.6],
+      "kickerAt": 0.06, "headAt": 0.2, "englishAt": 0.35,
+      "note": "全部时间都写在 story.json",
+      "noteSub": "改完重跑即可",
+      "noteAt": 5.2
+    },
+    {
+      "key": "l2", "type": "live", "bg": "live", "start": 14.0, "end": 16.0
+    },
+    {
+      "key": "number", "type": "stat", "bg": "dark", "start": 16.0, "end": 22.0,
+      "kicker": "关键数字 / RHYTHM", "chapter": "03 / 05", "ghost": "03",
+      "big": "1.5", "bigUnit": "s",
+      "label": "每 1.5 秒\n画面必须变一次",
+      "sub": "不靠感觉，靠帧差测量",
+      "kickerAt": 0.06, "bigAt": 0.2, "labelAt": 3.0, "subAt": 4.6
+    },
+    {
+      "key": "l3", "type": "live", "bg": "live", "start": 22.0, "end": 24.0
+    },
+    {
+      "key": "versus", "type": "versus", "bg": "dark", "start": 24.0, "end": 30.0,
+      "kicker": "交替 / ALTERNATION", "chapter": "04 / 05", "ghost": "04",
+      "english": "LIVE VS PAGE",
+      "headline": ["真人", "和页面交替"],
+      "left": {"label": "真人", "en": "LIVE", "items": ["呼吸", "信任"], "beats": [1.2, 1.5]},
+      "right": {"label": "页面", "en": "PAGE", "items": ["信息", "结构"], "beats": [2.2, 2.5]},
+      "leftAt": 0.6, "rightAt": 1.8, "midAt": 1.4,
+      "kickerAt": 0.06, "headAt": 0.14, "englishAt": 0.28,
+      "note": "每 6–12 秒换一次形态",
+      "noteSub": "真人占比 18–32%",
+      "noteAt": 3.9
+    },
+    {
+      "key": "l4", "type": "live", "bg": "live", "start": 30.0, "end": 32.0
+    },
+    {
+      "key": "verdict", "type": "verdict", "bg": "dark", "start": 32.0, "end": 36.0,
+      "kicker": "结论 / VERDICT", "chapter": "05 / 05", "ghost": "05",
+      "headline": ["改配置", "就能出片"],
+      "sub": "换成你的素材与文案",
+      "tag": "现在跑一遍",
+      "note": "示例跑通后，删掉 demo 换成真实素材。",
+      "kickerAt": 0.05, "headAt": 0.15, "subAt": 1.2, "tagAt": 2.2, "noteAt": 2.9
+    }
+  ],
+  "cover": {
+    "issue": "01", "issueLine": "DEMO / PIPELINE",
+    "kicker": "示例 / DEMO",
+    "title": ["跑通一次", "就懂了"],
+    "lines": ["示例素材，无版权风险", "改配置即可换成你的视频", "成品直接落地"],
+    "time": 7.0
+  },
+  "qa_times": [1.0, 9.0, 17.0, 25.0, 33.0]
+}

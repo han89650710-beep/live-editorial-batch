@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Magazine Cover</title>
+<style>
+  * { box-sizing: border-box; }
+  :root { --head: "Microsoft YaHei"; --text: #f4f0e8; --accent: #c8ff3d; --accentInk: #171815; }
+  html, body { margin: 0; width: 1080px; height: 1440px; overflow: hidden; background: #0d0d0c; }
+  #cover { position: relative; width: 1080px; height: 1440px; overflow: hidden; color: var(--text); }
+  .bg { position: absolute; inset: 0; width: 1080px; height: 1440px; object-fit: cover; filter: saturate(1.04) contrast(1.03); }
+  .top-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,.22) 18%, rgba(0,0,0,0) 34%); }
+  .bottom-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 32%, rgba(0,0,0,.18) 45%, rgba(0,0,0,.80) 60%, rgba(0,0,0,.95) 78%, rgba(0,0,0,.99) 100%); }
+  .masthead { position: absolute; left: 52px; top: 40px; display: flex; align-items: baseline; gap: 20px; }
+  .mast-cn { font-family: var(--head); font-size: 78px; font-weight: 900; letter-spacing: 8px; line-height: 1; color: var(--text); text-shadow: 0 4px 24px rgba(0,0,0,.55); }
+  .mast-en { font: 800 24px/1 Arial, sans-serif; letter-spacing: 7px; color: var(--accent); }
+  .mast-rule { position: absolute; left: 54px; top: 136px; width: 300px; height: 7px; background: var(--accent); }
+  .issue { position: absolute; right: 52px; top: 44px; text-align: right; }
+  .issue b { display: block; font: 900 40px/1 Arial, sans-serif; letter-spacing: 1px; color: var(--text); }
+  .issue span { display: block; margin-top: 10px; font: 700 18px/1.4 Arial, sans-serif; letter-spacing: 3px; color: rgba(255,255,255,.7); }
+  .issue b span { display: inline; margin: 0; font: inherit; letter-spacing: inherit; color: inherit; }
+  .kicker { position: absolute; left: 54px; top: 186px; font-size: 27px; line-height: 1; font-weight: 800; letter-spacing: 4px; color: var(--accent); text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+  .title { position: absolute; left: 50px; top: 686px; width: 640px; margin: 0; font-family: var(--head); font-size: 90px; line-height: 1.06; font-weight: 900; letter-spacing: -2px; color: var(--text); text-shadow: 0 6px 30px rgba(0,0,0,.45); }
+  .title .accent { color: var(--accent); }
+  .lines { position: absolute; left: 54px; top: 930px; width: 600px; list-style: none; margin: 0; padding: 0; }
+  .lines li { position: relative; padding: 14px 0 14px 34px; border-top: 1px solid rgba(255,255,255,.24); font-size: 31px; line-height: 1.28; font-weight: 700; color: rgba(255,255,255,.92); }
+  .lines li::before { content: ""; position: absolute; left: 0; top: 22px; width: 16px; height: 16px; background: var(--accent); }
+  .sticker { position: absolute; right: 56px; top: 700px; width: 176px; height: 176px; border-radius: 50%; background: var(--accent); color: var(--accentInk); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 40px rgba(0,0,0,.4); }
+  .sticker b { font: 900 74px/0.92 Arial, sans-serif; letter-spacing: -3px; }
+  .sticker span { margin-top: 8px; font: 800 17px/1 Arial, sans-serif; letter-spacing: 3px; }
+  .bottom { position: absolute; left: 52px; right: 52px; bottom: 44px; display: flex; align-items: flex-end; justify-content: space-between; border-top: 3px solid var(--accent); padding-top: 18px; }
+  .bottom .left { font: 800 22px/1.5 Arial, sans-serif; letter-spacing: 3px; color: rgba(255,255,255,.85); }
+  .bottom .left i { display: block; font-style: normal; font-weight: 400; color: rgba(255,255,255,.55); }
+  .barcode { display: flex; align-items: flex-end; gap: 4px; height: 66px; }
+  .barcode i { display: block; width: 5px; height: 100%; background: rgba(255,255,255,.85); }
+  .barcode i:nth-child(3n) { width: 9px; }
+  .barcode i:nth-child(4n) { height: 74%; align-self: flex-end; }
+  .price { margin-left: 14px; font: 800 20px/1.3 Arial, sans-serif; letter-spacing: 2px; color: rgba(255,255,255,.8); text-align: right; }
+  .light .top-scrim { background: linear-gradient(180deg, #F1F0EC 0%, #F1F0EC 9%, rgba(241,240,236,0) 19%); }
+  .light .bottom-scrim { background: linear-gradient(180deg, rgba(241,240,236,0) 26%, rgba(241,240,236,.97) 42%, #F1F0EC 46%, #F1F0EC 100%); }
+  .light .title, .light .mast-cn { text-shadow: none; }
+  .light .lines li { border-top-color: rgba(20,20,20,.28); color: #1B1B1B; }
+  .light .issue span { color: rgba(20,20,20,.6); }
+  .light .bottom { border-top-color: var(--accent); }
+  .light .bottom .left { color: #1B1B1B; }
+  .light .bottom .left i { color: rgba(20,20,20,.55); }
+  .light .barcode i { background: #1B1B1B; }
+  .light .price { color: #3A3A3A; }
+  .light .sticker { box-shadow: none; }
+  html.tall, html.tall body, html.tall #cover, html.tall .bg { height: 1920px; }
+  html.tall .title { top: 1006px; width: 700px; font-size: 104px; }
+  html.tall .lines { top: 1300px; width: 640px; }
+  html.tall .lines li { padding: 20px 0 20px 34px; font-size: 34px; }
+  html.tall .sticker { top: 1016px; }
+  html.tall .bottom { bottom: 58px; }
+  html.tall .light .title { width: 800px; font-size: 88px; }
+</style>
+</head>
+<body>
+<div id="cover">
+  <img class="bg" alt="">
+  <div class="top-scrim"></div>
+  <div class="bottom-scrim"></div>
+  <div class="masthead"><span class="mast-cn">现场笔记</span><span class="mast-en">LIVE NOTES</span></div>
+  <div class="mast-rule"></div>
+  <div class="issue"><b>NO.<span id="issueNo"></span></b><span id="issueLine"></span></div>
+  <div class="kicker" id="kicker"></div>
+  <h1 class="title" id="title"></h1>
+  <ul class="lines" id="lines"></ul>
+  <div class="sticker"><b id="stickerNo">10</b><span>STORIES</span></div>
+  <div class="bottom">
+    <div class="left"><span id="footCn"></span><i id="footEn"></i></div>
+    <div style="display:flex;align-items:flex-end">
+      <div class="barcode"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="price">¥ 0<br>内部学习版</div>
+    </div>
+  </div>
+</div>
+<script>
+window.COVER = __COVER_JSON__;
+(() => {
+  const C = window.COVER;
+  if (C.tall) document.documentElement.classList.add('tall');
+  const t = C.theme || {};
+  const stage = document.getElementById('cover');
+  if (t.mode === 'light') stage.classList.add('light');
+  const map = {
+    '--head': t.head, '--text': t.text, '--accent': t.accent,
+    '--accentInk': t.accentInk || '#111111',
+  };
+  for (const [key, value] of Object.entries(map)) if (value) stage.style.setProperty(key, value);
+  document.querySelector('.bg').src = C.bg;
+  document.getElementById('issueNo').textContent = C.issue || '01';
+  document.getElementById('stickerNo').textContent = C.issue || '10';
+  document.getElementById('issueLine').textContent = C.issueLine || 'STORY FIRST / 2026';
+  document.getElementById('kicker').textContent = C.kicker || '';
+  const title = document.getElementById('title');
+  const parts = (C.title || []).map((line, i, arr) => i === arr.length - 1 ? `<span class="accent">${esc(line)}</span>` : esc(line));
+  title.innerHTML = parts.join('<br>');
+  document.getElementById('lines').innerHTML = (C.lines || []).map(line => `<li>${esc(line)}</li>`).join('');
+  document.getElementById('footCn').textContent = C.footCn || '亿汇智投 · 直播再创作';
+  document.getElementById('footEn').textContent = C.footEn || 'VERTICAL EDITORIAL SERIES';
+  function esc(value) { return String(value).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch])); }
+  window.__COVER_READY__ = true;
+})();
+</script>
+</body>
+</html>

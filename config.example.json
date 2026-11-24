@@ -1,0 +1,25 @@
+{
+  "ffmpeg": "ffmpeg",
+  "ffprobe": "ffprobe",
+  "source": "demo/demo_source.mp4",
+  "stories_dir": "stories",
+  "work_dir": "work",
+  "output_dir": "output",
+  "cover_dir": "output/covers",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "pip": {
+    "x": 604,
+    "y": 1010,
+    "size": 340,
+    "crop": [120, 260, 720, 720],
+    "label": "原声",
+    "label_font": ""
+  },
+  "subtitle": {
+    "font": "Microsoft YaHei",
+    "size": 56,
+    "margin_v": 248
+  }
+}

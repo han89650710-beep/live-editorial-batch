@@ -1,0 +1,12 @@
+{
+  "name": "broadsheet",
+  "note": "米纸纹 + 衬线通栏标题 + 双线 + 红色印章感。适合揭秘、打假、反常识。",
+  "theme": {
+    "bg": "#EFE9DC", "panel": "#FBF6EA", "text": "#17130F", "muted": "#6B5F52",
+    "accent": "#B3261E", "head": "Noto Serif SC", "body": "Noto Sans SC",
+    "panelSolid": "rgba(239,233,220,.96)", "accentInk": "#FFF6EE",
+    "rule": "rgba(23,19,15,.22)", "inkSoft": "rgba(23,19,15,.68)", "inkFaint": "rgba(23,19,15,.5)",
+    "ghost": "rgba(23,19,15,.06)", "subInk": "#2A231C", "itemInk": "#17130F",
+    "gridInk": "#17130F", "breath": "#000000", "mode": "light", "skin": "broadsheet"
+  }
+}

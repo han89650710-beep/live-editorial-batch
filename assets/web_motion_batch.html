@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Editorial Web Motion Batch</title>
+<style>
+  :root {
+    --charcoal: #171815;
+    --panel: #20221d;
+    --ivory: #f4f0e8;
+    --lime: #c8ff3d;
+    --muted: #aaa99f;
+    --dim: #6f7168;
+    --font-head: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+    --font-body: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+    --panel-solid: rgba(23,24,21,.94);
+    --accent-ink: #47502f;
+    --rule: rgba(244,240,232,.18);
+    --ink-soft: rgba(244,240,232,.72);
+    --ink-faint: rgba(244,240,232,.5);
+    --ghost-c: rgba(244,240,232,.05);
+    --sub-ink: #d8d3c8;
+    --item-ink: #e8e3d8;
+    --grid-ink: #f4f0e8;
+    --breath-c: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: transparent; }
+  body { font-family: var(--font-body); }
+  .headline, .hook-title, .verdict-tag, .quote-head h1, .quote-bar p,
+  .stat-label, .vs-label, .steps li strong, .checks li, .chain-node strong {
+    font-family: var(--font-head);
+  }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: transparent; }
+  .scene { position: absolute; inset: 0; overflow: hidden; opacity: 0; will-change: opacity, transform; }
+  .scene.dark { background: var(--charcoal); color: var(--ivory); }
+  .scene.live { background: transparent; color: var(--ivory); }
+  .grid { position: absolute; inset: 0; opacity: .12; }
+  .grid i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid-ink); }
+  .grid b { position: absolute; left: 0; right: 0; height: 1px; background: var(--grid-ink); }
+  .kicker { position: absolute; left: 62px; top: 56px; font-size: 27px; line-height: 38px; font-weight: 700; letter-spacing: 2px; color: var(--lime); }
+  .chapter { position: absolute; right: 62px; top: 54px; font: 700 28px/38px Arial, sans-serif; letter-spacing: 2px; color: var(--ink-soft); }
+  .ghost { position: absolute; right: 34px; top: 96px; font: 800 180px/1 Arial, sans-serif; color: var(--ghost-c); }
+  .headline { position: absolute; left: 56px; top: 132px; margin: 0; font-size: 86px; line-height: 1.14; letter-spacing: -4px; font-weight: 800; color: var(--ivory); }
+  .headline .accent { color: var(--lime); }
+  .english { position: absolute; left: 62px; top: 396px; font: 700 23px/32px Arial, sans-serif; letter-spacing: 4px; color: var(--muted); }
+  .footer { position: absolute; left: 62px; right: 62px; bottom: 50px; border-top: 2px solid var(--rule); padding-top: 16px; display: flex; justify-content: space-between; font: 700 21px/28px Arial, sans-serif; letter-spacing: 2px; color: var(--ink-faint); }
+
+  .hook-title { position: absolute; left: 54px; top: 282px; margin: 0; font-size: 100px; line-height: 1.1; letter-spacing: -5px; font-weight: 800; color: var(--ivory); }
+  .hook-title .accent { color: var(--lime); }
+  .hook-sub { position: absolute; left: 60px; top: 636px; width: 830px; font-size: 41px; line-height: 1.55; font-weight: 700; color: var(--sub-ink); white-space: pre-line; }
+  .hook-rule { position: absolute; left: 60px; top: 800px; width: 140px; height: 8px; background: var(--lime); }
+  .verdict-tag { position: absolute; left: 60px; top: 792px; display: inline-block; background: var(--lime); color: var(--charcoal); font-size: 38px; line-height: 1.2; font-weight: 800; padding: 12px 28px; letter-spacing: -1px; }
+  .verdict-note { position: absolute; left: 62px; top: 916px; width: 610px; font-size: 33px; line-height: 1.5; font-weight: 400; color: var(--muted); white-space: pre-line; }
+
+  .vs { position: absolute; left: 62px; right: 62px; top: 452px; height: 540px; }
+  .vs-col { position: absolute; top: 0; width: 420px; }
+  .vs-col.left { left: 0; }
+  .vs-col.right { left: 482px; }
+  .vs-label { font-size: 50px; line-height: 1.1; font-weight: 800; letter-spacing: -2px; color: var(--ivory); }
+  .vs-col.right .vs-label { color: var(--lime); }
+  .vs-label span { display: block; margin-top: 10px; font: 700 18px/26px Arial, sans-serif; letter-spacing: 3px; color: var(--muted); }
+  .vs-items { list-style: none; margin: 26px 0 0; padding: 0; }
+  .vs-items li { border-top: 1px solid var(--rule); padding: 16px 0 14px; font-size: 33px; line-height: 1.35; font-weight: 700; color: var(--item-ink); }
+  .vs-items li::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 14px; background: var(--lime); vertical-align: 5px; }
+  .vs-mid { position: absolute; left: 430px; top: 152px; width: 58px; height: 58px; border-radius: 50%; border: 2px solid var(--lime); background: var(--charcoal); display: flex; align-items: center; justify-content: center; font: 800 19px/1 Arial, sans-serif; color: var(--lime); }
+
+  .note { position: absolute; left: 62px; top: 1032px; width: 620px; border-left: 10px solid var(--lime); padding: 6px 0 6px 26px; font-size: 39px; line-height: 1.48; font-weight: 700; color: var(--ivory); }
+  .note span { display: block; margin-top: 8px; font-size: 27px; line-height: 1.4; font-weight: 400; color: var(--muted); }
+
+  .steps { position: absolute; left: 62px; top: 452px; width: 640px; list-style: none; margin: 0; padding: 0; }
+  .steps li { position: relative; height: 118px; margin-bottom: 22px; background: var(--panel); border: 1px solid var(--rule); border-left: 8px solid var(--lime); padding: 20px 24px 18px 96px; }
+  .steps li b { position: absolute; left: 24px; top: 30px; font: 700 30px/1 Arial, sans-serif; color: var(--lime); letter-spacing: 1px; }
+  .steps li strong { display: block; font-size: 40px; line-height: 1.1; font-weight: 800; letter-spacing: -1px; color: var(--ivory); }
+  .steps li em { display: block; margin-top: 9px; font: 700 17px/1.2 Arial, sans-serif; letter-spacing: 3px; color: var(--muted); font-style: normal; }
+  .steps li.done { border-left-color: var(--lime); }
+  .steps li.active { background: var(--lime); border-color: var(--lime); }
+  .steps li.active b, .steps li.active strong { color: var(--charcoal); }
+  .steps li.active em { color: var(--accent-ink); }
+
+  .checks { position: absolute; left: 62px; top: 452px; width: 640px; list-style: none; margin: 0; padding: 0; }
+  .checks li { position: relative; height: 96px; margin-bottom: 12px; padding: 20px 22px 16px 82px; background: var(--panel); border: 1px solid var(--rule); font-size: 34px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; color: var(--ivory); }
+  .checks li i { position: absolute; left: 24px; top: 28px; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--lime); }
+  .checks li i::after { content: ""; position: absolute; left: 8px; top: 8px; width: 18px; height: 10px; border-left: 4px solid var(--lime); border-bottom: 4px solid var(--lime); transform: rotate(-45deg); opacity: 0; }
+  .checks li.on i::after { opacity: 1; }
+  .checks li em { display: block; margin-top: 9px; font: 700 16px/1 Arial, sans-serif; letter-spacing: 3px; color: var(--muted); font-style: normal; }
+
+  .chain { position: absolute; left: 62px; top: 452px; width: 640px; }
+  .chain-node { position: relative; height: 118px; margin-bottom: 22px; padding: 20px 22px 18px 88px; background: var(--panel); border: 1px solid var(--rule); }
+  .chain-node b { position: absolute; left: 24px; top: 26px; width: 44px; height: 44px; border-radius: 50%; background: var(--lime); color: var(--charcoal); font: 800 22px/44px Arial, sans-serif; text-align: center; }
+  .chain-node strong { display: block; font-size: 38px; line-height: 1.12; font-weight: 800; letter-spacing: -1px; color: var(--ivory); }
+  .chain-node em { display: block; margin-top: 8px; font: 700 17px/1.2 Arial, sans-serif; letter-spacing: 3px; color: var(--muted); font-style: normal; }
+  .chain-node.last { background: var(--lime); border-color: var(--lime); }
+  .chain-node.last strong { color: var(--charcoal); }
+  .chain-node.last em { color: var(--accent-ink); }
+  .chain-node.last b { background: var(--charcoal); color: var(--lime); }
+  .breath { position: absolute; inset: 0; background: var(--breath-c); opacity: 0; pointer-events: none; }
+  .tempo { position: absolute; left: 62px; right: 62px; bottom: 116px; height: 6px; background: var(--rule); }
+  .tempo i { display: block; height: 100%; width: 0%; background: var(--lime); }
+  .scene .headline .accent, .scene .hook-title .accent { text-shadow: 0 0 var(--glow, 0px) var(--lime); }
+  .checks li.focus, .steps li.focus, .chain-node.focus, .vs-col.focus { box-shadow: 0 0 0 3px var(--lime); }
+
+  .chain svg { position: absolute; left: 100px; top: 0; width: 20px; height: 420px; overflow: visible; }
+  .chain svg path { fill: none; stroke: var(--lime); stroke-width: 6; stroke-linecap: round; }
+
+  .stat-big { position: absolute; left: 50px; top: 392px; font: 800 246px/1 Arial, sans-serif; color: var(--lime); letter-spacing: -12px; }
+  .stat-big span { font-size: 108px; letter-spacing: -4px; }
+  .stat-label { position: absolute; left: 62px; top: 700px; width: 830px; font-size: 49px; line-height: 1.35; font-weight: 800; letter-spacing: -1px; color: var(--ivory); white-space: pre-line; }
+  .stat-sub { position: absolute; left: 62px; top: 928px; width: 610px; font-size: 35px; line-height: 1.5; font-weight: 700; color: var(--muted); white-space: pre-line; }
+
+  .quote-head { position: absolute; left: 42px; top: 44px; width: 996px; height: 340px; background: var(--panel-solid); border: 1px solid var(--rule); padding: 24px 30px; }
+  .quote-head .kicker { position: static; }
+  .quote-head .chapter { top: 26px; right: 28px; }
+  .quote-head h1 { margin: 58px 0 0; font-size: 68px; line-height: 1.2; letter-spacing: -3px; font-weight: 800; color: var(--ivory); }
+  .quote-head h1 .accent { color: var(--lime); }
+  .quote-bar { position: absolute; left: 42px; top: 1392px; width: 996px; min-height: 148px; background: var(--panel-solid); border-left: 10px solid var(--lime); padding: 22px 28px; }
+  .quote-bar p { margin: 0; font-size: 45px; line-height: 1.38; font-weight: 800; letter-spacing: -1px; color: var(--ivory); }
+  .quote-bar span { display: block; margin-top: 8px; font-size: 27px; line-height: 1.4; font-weight: 400; color: var(--muted); }
+
+  /* Broadsheet skin：纸张纹理 + 衬线大标题 + 双线 */
+  .skin-broadsheet .scene.dark {
+    background-image: radial-gradient(rgba(23,19,15,.05) 1px, transparent 1px);
+    background-size: 5px 5px;
+  }
+  .skin-broadsheet .headline, .skin-broadsheet .hook-title {
+    letter-spacing: -1px; border-top: 6px solid var(--ivory); padding-top: 18px;
+  }
+  .skin-broadsheet .kicker { letter-spacing: 5px; }
+  .skin-broadsheet .chapter { font-family: var(--font-head); letter-spacing: 1px; }
+  .skin-broadsheet .footer { border-top: 3px double var(--rule); }
+  .skin-broadsheet .checks li, .skin-broadsheet .steps li, .skin-broadsheet .chain-node { border-radius: 0; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+window.STORY = __STORY_JSON__;
+(() => {
+  const S = window.STORY;
+  const stage = document.getElementById('stage');
+  if (S.theme) {
+    const theme = S.theme;
+    const mapping = {
+      '--charcoal': theme.bg, '--panel': theme.panel, '--ivory': theme.text,
+      '--muted': theme.muted, '--lime': theme.accent, '--font-head': theme.head, '--font-body': theme.body,
+      '--panel-solid': theme.panelSolid, '--accent-ink': theme.accentInk,
+      '--rule': theme.rule, '--ink-soft': theme.inkSoft, '--ink-faint': theme.inkFaint,
+      '--ghost-c': theme.ghost, '--sub-ink': theme.subInk, '--item-ink': theme.itemInk,
+      '--grid-ink': theme.gridInk, '--breath-c': theme.breath,
+    };
+    for (const [key, value] of Object.entries(mapping)) {
+      if (value) stage.style.setProperty(key, value);
+    }
+  }
+  const esc = value => String(value).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+  const clamp = v => Math.max(0, Math.min(1, v));
+  const progress = (t, start, duration) => clamp((t - start) / duration);
+  const out = p => 1 - Math.pow(1 - p, 3);
+  const smooth = p => p * p * (3 - 2 * p);
+
+  const grid = () => `
+    <div class="grid"><i style="left:62px"></i><i style="left:278px"></i><i style="left:540px"></i><i style="left:802px"></i><i style="left:1016px"></i><b style="top:438px"></b><b style="top:1410px"></b></div>`;
+
+  const footer = () => `<div class="footer"><span>STORY FIRST / LIVE NOTES</span><span>${esc(S.chapter_footer || 'EDITORIAL CUT')}</span></div>`;
+
+  const stdHead = sc => {
+    const lines = sc.headline.map((line, i) => i === sc.headline.length - 1 ? `<span class="accent">${esc(line)}</span>` : esc(line)).join('<br>');
+    return `
+      <div class="kicker" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.kicker)}</div>
+      <div class="chapter" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.chapter)}</div>
+      ${sc.ghost ? `<div class="ghost" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.ghost)}</div>` : ''}
+      <h1 class="headline" data-t="${sc.headAt ?? 0.14}">${lines}</h1>
+      <div class="english" data-t="${sc.englishAt ?? 0.28}">${esc(sc.english)}</div>`;
+  };
+
+  const hookHead = sc => {
+    const lines = sc.headline.map((line, i) => i === sc.headline.length - 1 ? `<span class="accent">${esc(line)}</span>` : esc(line)).join('<br>');
+    return `
+      <div class="kicker" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.kicker)}</div>
+      <div class="chapter" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.chapter)}</div>
+      <div class="ghost">${esc(sc.ghost || '01')}</div>
+      <h1 class="hook-title" data-t="${sc.headAt ?? 0.16}">${lines}</h1>
+      ${sc.sub ? `<div class="hook-sub" data-t="${sc.subAt ?? 0.38}">${esc(sc.sub)}</div>` : ''}
+      ${sc.tag ? `<div class="verdict-tag" data-t="${sc.tagAt ?? 0.58}">${esc(sc.tag)}</div><div class="verdict-note" data-t="${sc.noteAt ?? 0.76}">${esc(sc.note || '')}</div>` : (sc.sub ? `<div class="hook-rule" data-t="${sc.ruleAt ?? 0.62}"></div>` : '')}
+      ${footer()}`;
+  };
+
+  const quote = sc => `
+    <div class="quote-head" data-t="${sc.headAt ?? 0.10}">
+      <div class="kicker">${esc(sc.kicker)}</div><div class="chapter">${esc(sc.chapter)}</div>
+      <h1>${sc.headline.map((line, i) => i === sc.headline.length - 1 ? `<span class="accent">${esc(line)}</span>` : esc(line)).join('<br>')}</h1>
+    </div>
+    <div class="quote-bar" data-t="${sc.quoteAt ?? 0.46}">
+      <p>${esc(sc.quote)}</p>${sc.sub ? `<span>${esc(sc.sub)}</span>` : ''}
+    </div>`;
+
+  const versus = sc => `
+    ${stdHead(sc)}
+    <div class="vs">
+      <div class="vs-col left" data-t="${sc.leftAt ?? 0.36}">
+        <div class="vs-label">${esc(sc.left.label)}<span>${esc(sc.left.en)}</span></div>
+        <ul class="vs-items">${sc.left.items.map((item, i) => `<li data-t="${(sc.left.beats?.[i] ?? 0.62 + i * 0.16).toFixed(2)}">${esc(item)}</li>`).join('')}</ul>
+      </div>
+      <div class="vs-mid" data-t="${sc.midAt ?? 0.92}">VS</div>
+      <div class="vs-col right" data-t="${sc.rightAt ?? 0.54}">
+        <div class="vs-label">${esc(sc.right.label)}<span>${esc(sc.right.en)}</span></div>
+        <ul class="vs-items">${sc.right.items.map((item, i) => `<li data-t="${(sc.right.beats?.[i] ?? 0.80 + i * 0.16).toFixed(2)}">${esc(item)}</li>`).join('')}</ul>
+      </div>
+    </div>
+    ${sc.note ? `<div class="note" data-t="${sc.noteAt ?? (1.10 + sc.right.items.length * 0.16).toFixed(2)}">${esc(sc.note)}${sc.noteSub ? `<span>${esc(sc.noteSub)}</span>` : ''}</div>` : ''}
+    ${footer()}`;
+
+  const steps = sc => `
+    ${stdHead(sc)}
+    <ol class="steps">${sc.items.map((item, i) => `
+      <li data-t="${Math.max(0.3, (sc.beats?.[i] ?? 0.42 + i * 0.12) - 0.05).toFixed(2)}"><b>${String(i + 1).padStart(2, '0')}</b><strong>${esc(item.label)}</strong><em>${esc(item.en)}</em></li>`).join('')}
+    </ol>
+    ${sc.note ? `<div class="note" data-t="${sc.noteAt ?? (1.0 + sc.items.length * 0.12).toFixed(2)}">${esc(sc.note)}${sc.noteSub ? `<span>${esc(sc.noteSub)}</span>` : ''}</div>` : ''}
+    ${footer()}`;
+
+  const checks = sc => `
+    ${stdHead(sc)}
+    <ul class="checks">${sc.items.map((item, i) => `
+      <li data-t="${Math.max(0.3, (sc.beats?.[i] ?? 0.42 + i * 0.12) - 0.05).toFixed(2)}"><i></i>${esc(item.label)}<em>${esc(item.en)}</em></li>`).join('')}
+    </ul>
+    ${sc.note ? `<div class="note" data-t="${sc.noteAt ?? (1.0 + sc.items.length * 0.12).toFixed(2)}">${esc(sc.note)}${sc.noteSub ? `<span>${esc(sc.noteSub)}</span>` : ''}</div>` : ''}
+    ${footer()}`;
+
+  const chain = sc => {
+    const nodes = sc.items.map((item, i) => `
+      <div class="chain-node${i === sc.items.length - 1 ? ' last' : ''}" data-t="${Math.max(0.3, (sc.beats?.[i] ?? 0.38 + i * 0.16) - 0.05).toFixed(2)}"><b>${String(i + 1).padStart(2, '0')}</b><strong>${esc(item.label)}</strong><em>${esc(item.en)}</em></div>`).join('');
+    const lines = sc.items.slice(1).map((_, i) => `<path data-path="${Math.max(0.25, (sc.beats?.[i + 1] ?? 0.62 + i * 0.16) - 0.15).toFixed(2)}" pathLength="1" d="M10 ${i * 140 + 118} V ${i * 140 + 140}" stroke-dasharray="1"></path>`).join('');
+    return `${stdHead(sc)}<div class="chain">${nodes}<svg viewBox="0 0 20 420">${lines}</svg></div>
+      ${sc.note ? `<div class="note" data-t="${sc.noteAt ?? (1.0 + sc.items.length * 0.16).toFixed(2)}">${esc(sc.note)}${sc.noteSub ? `<span>${esc(sc.noteSub)}</span>` : ''}</div>` : ''}
+      ${footer()}`;
+  };
+
+  const stat = sc => `
+    <div class="kicker" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.kicker)}</div>
+    <div class="chapter" data-t="${sc.kickerAt ?? 0.06}">${esc(sc.chapter)}</div>
+    <div class="stat-big" data-t="${sc.bigAt ?? 0.42}">${esc(sc.big)}<span>${esc(sc.bigUnit || '')}</span></div>
+    <div class="stat-label" data-t="${sc.labelAt ?? 0.66}">${esc(sc.label)}</div>
+    <div class="stat-sub" data-t="${sc.subAt ?? 0.90}">${esc(sc.sub)}</div>
+    ${footer()}`;
+
+  const build = sc => {
+    const body = sc.type === 'hook' || sc.type === 'verdict' ? hookHead(sc)
+      : sc.type === 'quote' ? quote(sc)
+      : sc.type === 'versus' ? versus(sc)
+      : sc.type === 'steps' ? steps(sc)
+      : sc.type === 'list' ? checks(sc)
+      : sc.type === 'chain' ? chain(sc)
+      : sc.type === 'stat' ? stat(sc)
+      : sc.type === 'live' ? ''
+      : stdHead(sc);
+    return `<section class="scene ${sc.bg === 'live' ? 'live' : 'dark'}" data-scene="${esc(sc.key || '')}">${sc.bg === 'live' ? '' : grid() + '<div class="breath"></div><div class="tempo"><i></i></div>'}${body}</section>`;
+  };
+
+  if (!S.scenes.some(sc => sc.bg === 'live')) stage.style.background = 'var(--charcoal)';
+  if (S.theme && S.theme.skin) stage.classList.add('skin-' + S.theme.skin);
+  const scenes = S.scenes.map((sc, index) => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = build(sc);
+    const built = wrapper.firstElementChild;
+    built.style.zIndex = String(10 + index);
+    stage.appendChild(built);
+    return { config: sc, element: built };
+  });
+
+  window.renderAt = time => {
+    const t = Number(time);
+    stage.dataset.time = t.toFixed(5);
+    for (const { config: sc, element } of scenes) {
+      const inP = out(progress(t, sc.start, 0.42));
+      const outP = out(progress(t, sc.end - 0.30, 0.30));
+      const visible = inP * (1 - outP);
+      element.style.opacity = visible.toFixed(4);
+      element.style.transform = `translate3d(0,${((1 - inP) * 26 - outP * 16).toFixed(2)}px,0)`;
+      if (visible <= 0.001) continue;
+
+      element.querySelectorAll('[data-t]').forEach(el => {
+        const rel = parseFloat(el.dataset.t);
+        const rp = out(progress(t, sc.start + rel, 0.50));
+        el.style.opacity = rp.toFixed(4);
+        el.style.transform = `translate3d(0,${((1 - rp) * 36).toFixed(2)}px,0)`;
+        el.style.clipPath = `inset(${((1 - rp) * 100).toFixed(2)}% 0 0 0)`;
+      });
+
+      element.querySelectorAll('[data-path]').forEach(path => {
+        const rel = parseFloat(path.dataset.path);
+        const pp = smooth(progress(t, sc.start + rel, 0.60));
+        path.style.strokeDashoffset = (1 - pp).toFixed(4);
+        path.style.opacity = pp > 0 ? '1' : '0';
+      });
+
+      const local = Math.max(0, t - sc.start);
+      const beatIndex = Math.floor(local / 1.5);
+      const beatPhase = local % 1.5;
+      const pop = beatPhase < 0.32 ? 1 - beatPhase / 0.32 : 0;
+      element.style.setProperty('--glow', (pop * 30).toFixed(1) + 'px');
+      const breathEl = element.querySelector('.breath');
+      if (breathEl) {
+        const ramp = smooth(clamp(beatPhase / 0.28));
+        const level = beatIndex % 2 === 0 ? 1 - ramp : ramp;
+        breathEl.style.opacity = (level * 0.045).toFixed(4);
+      }
+      const rail = element.querySelector('.tempo i');
+      if (rail) rail.style.width = (clamp(local / Math.max(0.1, sc.end - sc.start)) * 100).toFixed(2) + '%';
+      const focusables = element.querySelectorAll('.checks li, .steps li, .chain-node, .vs-col');
+      if (focusables.length) {
+        const revealed = [...focusables].filter(el => parseFloat(el.dataset.t ?? '0') <= local);
+        const pool = revealed.length ? revealed : [...focusables];
+        const target = pool[beatIndex % pool.length];
+        focusables.forEach(el => el.classList.toggle('focus', pop > 0.05 && el === target));
+      }
+
+      if (sc.type === 'steps') {
+        let active = -1;
+        (sc.beats || []).forEach((beat, i) => { if (t >= sc.start + beat) active = i; });
+        element.querySelectorAll('.steps li').forEach((li, i) => {
+          li.classList.toggle('active', i === active);
+          li.classList.toggle('done', i < active);
+        });
+      }
+      if (sc.type === 'list') {
+        const beats = sc.beats || [];
+        element.querySelectorAll('.checks li').forEach((li, i) => {
+          li.classList.toggle('on', beats[i] !== undefined && t >= sc.start + beats[i]);
+        });
+      }
+    }
+    return { time: t };
+  };
+
+  window.__WEB_MOTION_READY__ = true;
+  window.renderAt(0);
+})();
+</script>
+</body>
+</html>

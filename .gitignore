@@ -1,0 +1,9 @@
+node_modules/
+work/
+output/
+config.json
+demo/demo_source.mp4
+__pycache__/
+*.log
+*.pyc
+.DS_Store

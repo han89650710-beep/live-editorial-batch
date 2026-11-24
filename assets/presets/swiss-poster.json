@@ -1,0 +1,12 @@
+{
+  "name": "swiss-poster",
+  "note": "白纸底 + 巨型无衬线 + 严格网格 + 单一红。适合观点、判断、结论。",
+  "theme": {
+    "bg": "#F1F0EC", "panel": "#FFFFFF", "text": "#141414", "muted": "#5A5A5A",
+    "accent": "#E2231A", "head": "Microsoft YaHei", "body": "Microsoft YaHei",
+    "panelSolid": "rgba(241,240,236,.97)", "accentInk": "#FFF7F5",
+    "rule": "rgba(20,20,20,.18)", "inkSoft": "rgba(20,20,20,.66)", "inkFaint": "rgba(20,20,20,.45)",
+    "ghost": "rgba(20,20,20,.06)", "subInk": "#2B2B2B", "itemInk": "#141414",
+    "gridInk": "#141414", "breath": "#000000", "mode": "light"
+  }
+}

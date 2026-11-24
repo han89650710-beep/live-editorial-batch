@@ -1,0 +1,68 @@
+name: lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Python syntax
+        run: python -m compileall -q scripts
+
+      - name: JSON valid
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          bad = []
+          for path in pathlib.Path(".").rglob("*.json"):
+              if "node_modules" in path.parts:
+                  continue
+              try:
+                  json.loads(path.read_text(encoding="utf-8-sig"))
+              except Exception as error:
+                  bad.append(f"{path}: {error}")
+          print("\n".join(bad) if bad else "json ok")
+          sys.exit(1 if bad else 0)
+          PY
+
+      - name: Node syntax
+        run: |
+          for file in scripts/*.mjs; do
+            node --check "$file"
+          done
+          echo "mjs ok"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          npm install --no-audit --no-fund
+
+      - name: Demo smoke test (prepare only)
+        run: |
+          cp config.example.json config.json
+          python - <<'PY'
+          import json, pathlib
+          config = json.loads(pathlib.Path("config.json").read_text(encoding="utf-8"))
+          config["stories_dir"] = "demo/stories"
+          config["source"] = "demo/demo_source.mp4"
+          pathlib.Path("config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+          PY
+          python scripts/make_demo_clip.py
+          python scripts/build_batch.py --stage prepare --only demo01

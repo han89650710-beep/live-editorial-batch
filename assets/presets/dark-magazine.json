@@ -1,0 +1,9 @@
+{
+  "name": "dark-magazine",
+  "note": "近黑底 + 细网格 + 衬线标题 + 荧光强调。适合机制解释与长因果链。",
+  "theme": {
+    "bg": "#0B1518", "panel": "#122225", "text": "#EDF6F3", "muted": "#8FAEAA",
+    "accent": "#FF5C8A", "head": "FangSong", "body": "Noto Sans SC",
+    "panelSolid": "rgba(11,21,24,.94)", "accentInk": "#3B0A1B"
+  }
+}
