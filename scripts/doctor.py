@@ -85,6 +85,14 @@ def main() -> None:
     except ImportError:
         print("[-- ] faster-whisper not installed (optional; use --srt instead)")
 
+    try:
+        import cv2  # noqa: F401
+        model = ROOT / "assets" / "models" / "face_detection_yunet_2023mar.onnx"
+        ok &= check("opencv + YuNet model (PIP face centering)", model.exists(),
+                    "re-download the repo or assets/models/face_detection_yunet_2023mar.onnx")
+    except ImportError:
+        print("[-- ] opencv not installed (optional; the PIP falls back to a fixed crop)")
+
     if config:
         source = config.get("source", "")
         if source:

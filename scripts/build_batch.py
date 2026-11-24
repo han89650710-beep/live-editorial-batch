@@ -96,6 +96,76 @@ def merge_ranges(ranges: list[tuple[float, float]]) -> list[list[float]]:
     return merged
 
 
+def resolve_pip_crop(config: dict, story: dict) -> None:
+    """Auto-center the PIP crop on the speaker's face.
+
+    A story that pins pip.crop wins. Otherwise the crop is detected once from
+    the segments that make up the video and cached in the work folder, so every
+    stage renders the same framing.
+    """
+    own = story.get("pip") or {}
+    if own.get("crop"):
+        return
+
+    settings = dict(config.get("pip", {}))
+    settings.update({key: value for key, value in own.items() if value is not None})
+    if settings.get("auto_crop") is False:
+        return
+
+    source = Path(story["source_path"])
+    side = int(settings.get("crop_side", 720))
+    times: list[float] = []
+    for segment in story["segments_calc"]:
+        start, end = segment["source_start"], segment["source_end"]
+        times += [round(start + (end - start) * ratio, 3) for ratio in (0.2, 0.8)]
+    if len(times) > 12:
+        step = len(times) / 12
+        times = [times[int(index * step)] for index in range(12)]
+
+    cache_path = story_dir(config, story) / "pip_auto.json"
+    key = {
+        "source": str(source),
+        "size": [source.stat().st_size, int(source.stat().st_mtime)],
+        "times": times,
+        "crop_side": side,
+    }
+    cached = {}
+    if cache_path.exists():
+        try:
+            cached = json.loads(cache_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            cached = {}
+    if cached.get("key") == key and cached.get("crop"):
+        payload = cached
+    else:
+        scripts = str(ROOT / "scripts")
+        if scripts not in sys.path:
+            sys.path.insert(0, scripts)
+        try:
+            from auto_pip import scan
+            payload = scan(source, times, max_side=side)
+        except Exception as error:
+            print(f"[warn] {story['id']}: auto pip failed ({error}), "
+                  f"keeping configured crop", file=sys.stderr)
+            return
+        payload["key"] = key
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            cache_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        except OSError:
+            pass
+
+    if payload.get("confidence") != "face" or not payload.get("crop"):
+        print(f"[warn] {story['id']}: no face found for the PIP, keeping configured crop",
+              file=sys.stderr)
+        return
+
+    story.setdefault("pip", {})
+    story["pip"]["crop"] = payload["crop"]
+    print(f"[pip] {story['id']}: face-centered crop {payload['crop']} "
+          f"({payload.get('scanned')}/{len(times)} frames)")
+
+
 # --------------------------------------------------------------------------- #
 # story loading and rule checks
 # --------------------------------------------------------------------------- #
@@ -159,6 +229,8 @@ def load_stories(config: dict) -> list[dict]:
         story["pip_ranges"] = merge_ranges([
             (scene["start"], scene["end"]) for scene in scenes if scene.get("bg") != "live"
         ])
+
+        resolve_pip_crop(config, story)
 
         if str(story.get("version", "")).startswith("2.0"):
             live = [scene for scene in scenes if scene.get("bg") == "live"]
@@ -300,17 +372,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     (directory / "captions.ass").write_text(ass, encoding="utf-8-sig")
 
 
-def build_ring(config: dict) -> Path:
+def story_pip(config: dict, story: dict) -> dict:
+    """Story-level pip overrides win over the global config (crop, x, y, size)."""
+    merged = dict(config.get("pip", {}))
+    merged.update({key: value for key, value in (story.get("pip") or {}).items() if value is not None})
+    return merged
+
+
+def build_ring(config: dict, story: dict) -> Path:
     width = int(config.get("width", 1080))
     height = int(config.get("height", 1920))
-    pip = config.get("pip", {})
+    pip = story_pip(config, story)
     size = int(pip.get("size", 340))
     x, y = int(pip.get("x", 604)), int(pip.get("y", 1010))
     label = pip.get("label", "")
 
-    target = resolve(config.get("work_dir", "work"), ROOT) / "pip_ring.png"
-    if target.exists():
-        return target
+    target = story_dir(config, story) / "pip_ring.png"
     target.parent.mkdir(parents=True, exist_ok=True)
 
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -403,7 +480,6 @@ def write_capture_jobs(config: dict, stories: list[dict]) -> Path:
 
 
 def capture(config: dict, stories: list[dict], only: str | None) -> None:
-    build_ring(config)
     jobs = write_capture_jobs(config, stories)
     command = ["node", str(ROOT / "scripts" / "capture_batch.mjs"), "--jobs", str(jobs)]
     if only:
@@ -459,10 +535,10 @@ def compose(config: dict, story: dict) -> Path:
         directory, directory / "web.log")
 
     # --- PIP + burned subtitles --------------------------------------------
-    pip = config.get("pip", {})
+    pip = story_pip(config, story)
     pip_size = int(pip.get("size", 340))
     pip_x, pip_y = int(pip.get("x", 604)), int(pip.get("y", 1010))
-    crop_x, crop_y, crop_w, crop_h = pip.get("crop", [120, 260, 720, 720])
+    crop_x, crop_y, crop_w, crop_h = pip.get("crop", [180, 260, 720, 720])
     circle = "if(lte((X-W/2)*(X-W/2)+(Y-H/2)*(Y-H/2),(W/2)*(W/2)),255,0)"
     ranges = story["pip_ranges"]
 
@@ -498,7 +574,7 @@ def compose(config: dict, story: dict) -> Path:
     filter_path = directory / "final_filter.txt"
     filter_path.write_text(";\n".join(filters), encoding="utf-8")
     run([ffmpeg, "-hide_banner", "-y", "-i", str(web), "-i", str(base),
-         "-loop", "1", "-framerate", str(fps), "-i", str(build_ring(config)),
+         "-loop", "1", "-framerate", str(fps), "-i", str(build_ring(config, story)),
          "-filter_complex_script", str(filter_path), "-map", "[vout]", "-an",
          "-frames:v", str(total), "-c:v", "libx264", "-preset", "medium", "-crf", "18",
          "-pix_fmt", "yuv420p", "-video_track_timescale", "15360", str(picture)],

@@ -9,14 +9,17 @@ Automated assertions run at the end of `--stage render`. After they pass, do the
 - H.264 / yuv420p / AAC 48kHz stereo
 - Zero decode errors across the whole file
 
-## Manual (5 checks)
+## Manual (6 checks)
 
 1. **First 0.5s** — cover is complete, headline does not wrap, sub-line is not covered.
 2. **Around every scene cut** — no accidental flash of full-screen footage.
 3. **Caption sync** — sample 5–8 points; on-screen text must not precede the spoken word.
 4. **1.5s rhythm** — downscale to 108×192 grayscale at 10fps and measure frame
    differences; page scenes ≥ 2.0, live scenes ≥ 1.5, pass rate 100% (rework below 95%).
-5. **PIP** — present on pages, absent on live cuts, never "person plus a second person".
+5. **PIP** — present on pages, absent on live cuts, never "person plus a second person";
+   the face sits in the middle of the circle, with head and chin inside it.
+6. **Script and length** — every sentence follows from the one before it; the runtime is
+   whatever the argument needs, with no filler added to hit a number.
 
 ## Measuring the rhythm
 

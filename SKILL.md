@@ -13,6 +13,12 @@ A deterministic, config-driven pipeline that turns long vertical talking-head fo
 - a measurable 1.5-second visual rhythm (asserted, not judged by eye)
 - full-screen live cuts alternating with structured pages
 - a magazine cover embedded into the first 0.5s of every video
+- the circular PIP auto-centered on the speaker's face (no manual crop guessing)
+- a planning step that splits the transcript into sentences, keeps the ones the topic
+  needs, and reorders them into a new script before any cutting happens
+
+Length follows the content: there is no 45–60s target. Cut every sentence the argument
+needs and stop when it is complete; a 30s clip and a 90s clip are equally valid.
 
 Everything runs locally. No cloud rendering, no upload of footage.
 
@@ -46,12 +52,18 @@ With real footage:
 python scripts/transcribe.py my_video.mp4 -o transcript.json
 python scripts/transcribe.py --srt my_captions.srt -o transcript.json
 
-# 2) copy a demo story, then edit segments / captions / scenes
-cp demo/stories/demo01.json stories/v01.json
+# 2) split the transcript into sentences, pick by topic, reorder into a new script
+python scripts/plan_from_transcript.py --transcript transcript.json \
+    --topic "九块九,毛利,获客" --id v01 --source my_video.mp4 --out stories/v01.json
 
-# 3) run
+# 3) rewrite the placeholder pages, then run
 python scripts/build_batch.py --stage all --only v01
 ```
+
+`plan_from_transcript.py` is the "拆解逐字稿、重新排列" step: every sentence becomes its
+own segment, `--order relevance` ranks them by the topic keywords and lays them out in a
+new order, `--order timeline` keeps the speaking order. `--max-seconds` is off by default;
+only pass it when the client asks for a hard cap.
 
 ## Pipeline
 
@@ -104,6 +116,15 @@ Copy a preset's `theme` object into the story. Light themes require the extra ke
 
 Never reuse one style for more than 5 consecutive videos; use at least 3 styles per batch.
 
+## PIP (circular cut-out)
+
+`pip.crop` is a square `[x, y, side, side]` cut from the source frame and scaled into the
+circle. Leave it out and `prepare` detects the speaker's face on the segments that make up
+the video, takes the median face center and caches the result in `work/<id>/pip_auto.json`,
+so the face sits in the middle of the circle. Set `pip.crop` in a story only to override the
+detection; `pip.auto_crop: false` disables it, `pip.crop_side` (default 720) caps the crop
+resolution. Run `scripts/auto_pip.py --video src.mp4 --out pip.json` to see the numbers.
+
 ## Common failures
 
 - Frames are cached: after editing a template, delete `work/<id>/frames/*.png`.
@@ -116,5 +137,6 @@ Never reuse one style for more than 5 consecutive videos; use at least 3 styles 
 ## Limits
 
 This is not a one-click product. The authoring step is a JSON story file. The skill
-assumes vertical 9:16 footage and one speaker; it does not do multi-cam switching,
-object tracking, or automatic highlight selection.
+assumes vertical 9:16 footage and one speaker; it does not do multi-cam switching or
+object tracking. Sentence selection in `plan_from_transcript.py` is keyword-based — read
+the draft order before rendering and move sentences that break the argument.

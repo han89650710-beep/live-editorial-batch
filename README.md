@@ -9,7 +9,8 @@
 
 ## 它能做什么
 
-- 从长视频里切出 45–60 秒的高价值片段，按 30fps 精确对齐
+- 从长视频里按主题挑句、重新排列成新文案，再按 30fps 精确对齐切片；时长由内容决定，不卡 45–60 秒
+- 圆形人像画中画自动对准人脸（YuNet 检测，取多帧中位数），不需要手填裁切框
 - 用网页模板做花字与版式，无头 Chrome 逐帧渲染后合成（不是录屏，是逐帧确定性的）
 - 花字时间对齐到「词」，不会出现「画面先说出答案、人还没讲到」
 - 用可测量的方式保证画面每 1.5 秒变化一次
@@ -19,7 +20,7 @@
 ## 它不能做什么
 
 - 不是一键成片：需要你写一份 story.json（约 100 行，有示例可抄）
-- 不做自动选段、不做多机位、不做人物跟踪
+- 选句是关键词匹配而不是语义理解，草稿顺序需要人工复核；不做多机位、不做人物跟踪
 - 只处理竖屏 9:16 单人镜头
 - 不内置语音识别模型（可选装 faster-whisper，或导入现成 SRT）
 
@@ -60,10 +61,16 @@ python scripts/build_batch.py --stage all --only demo01
 python scripts/transcribe.py 我的视频.mp4 -o transcript.json
 python scripts/transcribe.py --srt 我的字幕.srt -o transcript.json
 
-# 复制示例配置，改 segments / captions / scenes
-cp demo/stories/demo01.json stories/v01.json
+# 拆句 + 按主题挑句 + 重新排列，生成 story 草稿
+python scripts/plan_from_transcript.py --transcript transcript.json \
+    --topic "九块九,毛利,获客" --id v01 --source 我的视频.mp4 --out stories/v01.json
+
+# 改掉草稿里的占位标题，再跑
 python scripts/build_batch.py --stage all --only v01
 ```
+
+`--order relevance`（默认）按关键词打分重新排列，`--order timeline` 保持口播原序；
+`--max-seconds` 默认关闭，只有客户明确要求卡时长时才传。
 
 ## 目录结构
 
@@ -77,11 +84,14 @@ live-editorial-batch/
 │   ├── capture_batch.mjs     # 逐帧渲染网页层
 │   ├── capture_cover.mjs     # 封面截图
 │   ├── transcribe.py         # Whisper 或 SRT → 词级时间戳
+│   ├── plan_from_transcript.py # 拆句、按主题挑句、重排出 story 草稿
+│   ├── auto_pip.py           # 人脸检测 → 居中的 PIP 裁切框
 │   ├── doctor.py             # 环境自检
 │   └── make_demo_clip.py     # 生成示例素材
 ├── assets/
 │   ├── web_motion_batch.html # 花字/版式模板（配置注入）
 │   ├── cover_magazine.html   # 封面模板（深/浅两套）
+│   ├── models/               # YuNet 人脸检测模型（232 KB）
 │   └── presets/              # 三套主题：暗色杂志 / 瑞士海报 / 报纸剪报
 ├── references/
 │   ├── story-schema.md       # 字段逐项说明（中文）
@@ -106,6 +116,18 @@ live-editorial-batch/
 1. **封面入片头**：`embed_cover: true` 会在正片前拼 0.5 秒封面，QA 期望帧数 +15、时长 +0.5。
 2. **花字跟读**：所有 `*At` 与 `beats[]` 都不得早于口播；主标题必须在场景开始 1.6 秒内出现。
 3. **1.5 秒节拍**：内容节点最大间隔 ≤4.5 秒，叠加每 1.5 秒的节拍后最大间隔 ≤1.5 秒，真人段另有 ±14px 手持漂移。
+
+## PIP 与人像居中
+
+圆形画中画用 `pip.crop`（`[x, y, side, side]`，从源帧裁的正方形）缩放进圆里。
+story 里不写 `pip.crop` 时，`prepare` 会在这支片子的每个 segment 上抽帧检测人脸，取中位数中心自动定裁切框，缓存在 `work/<id>/pip_auto.json`，所以人脸始终在圆心。
+要手动指定就在 story 里写 `pip.crop` 覆盖；`pip.auto_crop: false` 关闭自动检测，`pip.crop_side`（默认 720）控制裁切分辨率。
+单测一条：`python scripts/auto_pip.py --video 我的视频.mp4 --out pip.json`。
+
+## 时长
+
+不设固定时长。切多少句、成片多长，取决于这个话题要把话说完整需要多少内容；
+30 秒和 90 秒都可以，不要为了凑时长加水词。
 
 ## 风格轮换
 

@@ -1,3 +1,5 @@
 Pillow>=9.0
 # optional, only for local transcription
 # faster-whisper>=1.0
+# optional, centers the PIP circle on the speaker's face (falls back to a fixed crop)
+# opencv-python-headless>=4.8

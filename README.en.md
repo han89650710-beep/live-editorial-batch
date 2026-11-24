@@ -12,7 +12,11 @@ structured pages. Runs entirely on your machine.
 
 ## What it does
 
-- Cuts 45–60s segments from long footage with frame-accurate 30fps offsets
+- Splits the transcript into sentences, keeps the ones the topic needs, reorders them
+  into a new script, then cuts at frame-accurate 30fps offsets. Length follows the
+  content — there is no 45–60s target
+- Auto-centers the circular PIP on the speaker's face (YuNet, median across sampled
+  frames), so nobody hand-tunes the crop box
 - Renders the text/graphics layer as HTML in headless Chrome, one deterministic
   screenshot per frame, then composites it over the footage
 - Aligns on-screen text to individual words, so a caption never reveals an answer
@@ -24,7 +28,8 @@ structured pages. Runs entirely on your machine.
 ## What it does not do
 
 - Not a one-click product: you author a `story.json` (~100 lines, examples included)
-- No automatic highlight selection, multi-cam switching, or person tracking
+- Sentence picking is keyword-based, not semantic — review the draft order; no multi-cam
+  switching or person tracking
 - Vertical 9:16 single-speaker footage only
 - No bundled speech model — optional `faster-whisper`, or import an existing SRT
 
@@ -57,9 +62,15 @@ python scripts/build_batch.py --stage all --only demo01
 python scripts/transcribe.py input.mp4 -o transcript.json
 python scripts/transcribe.py --srt captions.srt -o transcript.json
 
-cp demo/stories/demo01.json stories/v01.json      # edit segments / captions / scenes
-python scripts/build_batch.py --stage all --only v01
+# split into sentences, rank by topic, reorder into a draft story
+python scripts/plan_from_transcript.py --transcript transcript.json \
+    --topic "price,margin,acquisition" --id v01 --source input.mp4 --out stories/v01.json
+
+python scripts/build_batch.py --stage all --only v01   # rewrite the placeholder pages first
 ```
+
+`--order relevance` (default) reorders by keyword score, `--order timeline` keeps the
+speaking order. `--max-seconds` is off by default; pass it only for a hard client cap.
 
 ## Pipeline
 
@@ -79,6 +90,20 @@ python scripts/build_batch.py --stage all --only v01
    a page headline must appear within 1.6s.
 3. **1.5s rhythm** — content gaps ≤ 4.5s, merged with 1.5s ticks ≤ 1.5s, plus handheld
    drift on live footage.
+
+## PIP and face centering
+
+The circular PIP uses `pip.crop` (`[x, y, side, side]`, a square cut from the source frame)
+scaled into the circle. Leave `pip.crop` out and `prepare` samples every segment of the
+story, detects the face, takes the median center and caches it in `work/<id>/pip_auto.json`,
+so the face sits in the middle of the circle. Set `pip.crop` in a story to override;
+`pip.auto_crop: false` disables detection, `pip.crop_side` (default 720) caps the crop size.
+Check one clip with `python scripts/auto_pip.py --video input.mp4 --out pip.json`.
+
+## Length
+
+There is no fixed duration. How many sentences the topic needs decides the runtime;
+30s and 90s are both fine. Never pad a cut to hit a number.
 
 ## Scene types
 
