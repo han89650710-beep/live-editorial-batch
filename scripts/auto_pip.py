@@ -105,8 +105,10 @@ def square_crop(face, frame_w: int, frame_h: int, max_side: int):
         confidence = "fallback"
     else:
         fx, fy, fw, fh = face
-        cx, cy = fx + fw // 2, fy + fh // 2
-        side = int(max(fh * 2.6, fw * 2.6, 520))
+        # Face box centre sits around the nose; lift it slightly so the head has
+        # as much air above as the chin has below inside the circle.
+        cx, cy = fx + fw // 2, fy + fh // 2 - int(fh * 0.06)
+        side = int(max(fh * 1.95, fw * 1.95, 520))
         # Shrink the crop when needed so the face can sit dead center:
         # the square must fit between the face center and the frame edge.
         centered_side = 2 * min(cx, frame_w - cx, cy, frame_h - cy)

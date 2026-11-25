@@ -138,6 +138,7 @@ live-editorial-batch/
 
 圆形画中画用 `pip.crop`（`[x, y, side, side]`，从源帧裁的正方形）缩放进圆里。
 story 里不写 `pip.crop` 时，`prepare` 会在这支片子的每个 segment 上抽帧检测人脸，取中位数中心自动定裁切框，缓存在 `work/<id>/pip_auto.json`，所以人脸始终在圆心。
+裁切边长取人脸高度的 1.95 倍（上限 `pip.crop_side`，默认 900），保证圆里留出头肩而不是只切一张脸；人脸框中心再上移 6%，让头顶和下巴两侧留白接近。
 要手动指定就在 story 里写 `pip.crop` 覆盖；`pip.auto_crop: false` 关闭自动检测，`pip.crop_side`（默认 720）控制裁切分辨率。
 单测一条：`python scripts/auto_pip.py --video 我的视频.mp4 --out pip.json`。
 
